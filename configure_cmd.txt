@@ -1,0 +1,161 @@
+linux bash命令：
+cd -
+返回上一次的目录
+ll -k
+以block=1KB查看文件信息
+
+dos文件放到linux上面显示^M问题的解决：
+cat filename | tr "\r" "\n" > newfile
+
+查看sys各个模块内存占用
+memmanage stats q
+
+nfs挂载命令：
+mkdir /var/qlp && mount -t nfs -o nolock 192.168.60.106:/opt/nfs /var/qlp
+
+#hisilicon 网络sdk
+mount -t nfs 192.168.0.18:/opt/  /opt/netsdk
+
+vim命令：
+newword替换oldword：  
+	:%s/oldword/newold/egc | update
+	:m,ns/oldword/newold/egc | update
+在vi的命令状态下 :
+:%!xxd ——将当前文本转换为16进制格式。
+:%!od ——将当前文本转换为16进制格式。
+:%!xxd -c 12——将当前文本转换为16进制格式,并每行显示12个字节。
+:%!xxd -r ——将当前文件转换回文本格式。
+
+大华DVR账号密码：
+root vizxv
+
+汉邦超级管理员账号密码
+if (TYPE_DDS == key_info.oem_type)
+{//NVR用户名密码
+	strcpy((char *)account->accounts[i].user, "superdds");
+	strcpy((char *)account->accounts[i].pwd, "459839");
+}else
+{
+	strcpy((char *)account->accounts[i].user, "user");
+	strcpy((char *)account->accounts[i].pwd, "123456");
+}
+
+针对piix4_smbus ****host smbus controller not enabled的解决方法 
+2.[root@Nagios ~]# lsmod | grep i2c_piix4 
+3.i2c_piix4              12574  0 
+4.i2c_core               31274  1 i2c_piix4 
+5.[root@Nagios ~]# vi  /etc/modprobe.d/blacklist.conf 
+6.blacklist i2c_piix4 
+7.[root@Nagios ~]# reboot 
+8.重启后再无此提示！
+
+打印机：
+研发：\\192.168.10.10 用户名： 密码：
+人事：\\192.168.0.60  用户名：administrator 密码：admin
+
+valgrind使用方法：
+ valgrind --log-file=valgrind_log --leak-check=full --track-fds=yes ./config_usr_init >test.txt
+ 
+ 删除不匹配的文件
+find .  -maxdepth 1 -type f ! -iname "*.py*" -delete
+
+批量修改文件扩展名（txt->ext）
+rename 's/\.txt/\.ext/' *
+
+github and bitbucket
+com_mean out_1018@outlook.com Cool_1018
+
+海盗湾
+http://194.71.107.80/
+
+sudo apt-get install python-dev
+sudo apt-get install libxslt1.1 libxslt1-dev
+sudo apt-get install libxml2 libxml2-dev
+easy_install lxml
+
+
+
+查看进程名 ps -L -p $pid
+cat /proc/$pid/stat
+
+
+
+unbuntu12.04取消启动图形界面
+1. 运行 sudo vi/etc/default/grub
+2. 找到 GRUB_CMDLINE_LINUX_DEFAULT=”quiet splash”
+   改为 GRUB_CMDLINE_LINUX_DEFAULT=”quiet splash text”
+   （PS: quiet代表不显示详细启动过程;splash代表显示进度条）
+3.运行 sudo update-grub
+4.reboot
+
+命令行模式下需要返回图形模式，输入命令： startx
+反过来，图形模式下返回命令行模式，在终端按ctrl+alt+F1
+
+macro `AM_PROG_LIBTOOL’ not found in library 解决方案
+安装libtool：apt-get install libtool
+
+
+
+
+import os,os.path
+def VisitDir(arg,dirname,names):
+  for filespath in names:
+    print os.path.join(dirname,filespath)
+
+
+
+
+bash指令效率提升
+条目指示
+! 开始历史替换，除非后面跟着空格、制表符行结束、“ =”、或“（”
+!n 选择命令行n
+!-n 选择向后n 条命令(即倒数第 n条记录n>0)
+!! 前一条命令 同!-1
+
+!string 选择最近以string 开头的命令
+!?string? 选择最近包含string开头的命令
+
+^string1 ^string2 ^ 用sting1替换 string2后，重复执行上条命令。同 !!:s/string1/string2。
+
+!# 目前已经输入的整个命令
+
+!! 上条命令
+!!:^ 获取上条命令的第一个参数 同 ! ^ 和 !!:1
+!!:$ 获取上条命令的最后一个参数 同 ! $ 和 $_
+!!:n 获取上条命令的第n个参数
+
+!string:n 获取最近执行过的string开头的命令的第 n个参数
+
+历史
+ctrl + p 上一个使用的命令 (p=pervious)
+ctrl + n 下一个使用的命令 (n=next)
+ctrl + r 快速检索历史（多次按可查找下一个）
+
+系统提供的历史命令操作
+fc -s
+history
+
+单词指示
+0 即零，第零个单词。对大多数命令来说，它指命令名
+n 第n 个单词
+^ 第1 个参数（单词）
+$ 最后一个参数（单词）
+% 最近%string% 匹配的单词
+x-y 单词范围 0-y 可以写作 –y
+* 除了第零个以外的所有单词 同1-$
+x* x-$的简写，同x*
+如果用单词指示符时没有用条目指示符，则把前一条目作为条目
+
+修饰符
+在可选的单词指示符后面，可以加上下列一个或多个修饰符号，每个修饰符以 :开始
+h 去掉文件名的尾部，只留头部
+t 去掉文件名的头部，只留尾部
+r 去掉结尾的扩展名
+e 去掉扩展名以外的所有部分
+p 打印新的命令而不执行
+q 引用替换后的单词，以备进一步替换
+x 同q ，同时还在空格、制表符、换行符的地方把单词隔开
+s/old/new/ 把条目中第一个old替换为 new。 / 可以为任何分隔符
+& 重复上次替换
+g /a 使替换在整个条目中执行，同 s一起使用
+G 对条目中每个单词都进行一次 s修饰
