@@ -17,3 +17,36 @@ def initializeUserDict(tag, count = 5):
             usr_dict[usr] = {}
     return usr_dict
 
+
+def fill_items(usr_dict):
+    all_item = {}
+
+    for usr in usr_dict:
+        for i in range(3):
+            try:
+                posts = get_userposts(usr)
+                break
+            except Exception as e:
+                print(str(e))
+                time.sleep(4)
+        for post in posts:
+            url = post['href']
+            usr_dict[usr][url] = 1.0
+            all_item[url] = 1
+
+    #if the url not in someone's post, then his ratings is 0.0,
+    #make sure all datas have the same dimensionality
+    for ratings in usr_dict.values():
+        for item in all_item:
+            if item not in ratings:
+                ratings[item] = 0.0
+
+if __name__ == "__main__":
+    import random
+    import prefer
+    delc_usrs = initializeUserDict('Python')
+    delc_usrs['lpq'] = {} #add yourself
+    fill_items(delc_usrs)
+
+    usr = delc_usrs.keys()[random.randint(0, len(delc_usrs) - 1)]
+    prefer.topMatches(delc_usrs, usr)
