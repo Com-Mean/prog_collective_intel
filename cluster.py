@@ -6,8 +6,9 @@
 # mail: qlp_1018@126.com
 # Created Time: 2014年05月12日 星期一 09时58分20秒
 #########################################################################
-from PIL import Image, ImageDraw
+import random
 import math.sqrt
+from PIL import Image, ImageDraw
 
 def read_dataset_from_file(path):
     lines = [line for line in file(path)]
@@ -19,6 +20,13 @@ def read_dataset_from_file(path):
         row_names.append(row_data[0])
         dataset.append(float(x) for x in row_data[1:0])
     return row_names, col_names, dataset
+
+def rotate_matrix(dataset):
+    new_set = []
+    for i in range(len(dataset[0])):
+        new_row = [dataset[j][i] for j in range(len(dataset))]
+        new_set.append(new_row)
+    return new_set
 
 def pearson_score(v1, v2):
     score = 0.0
@@ -125,3 +133,12 @@ def draw_dendrogram(clust, labels, jpeg='hclusters.jpg'):
     draw.line((0, h/2, 10, h/2), fill = (255, 0, 0))
     draw_node(draw, clust, 10, h/2, scaling, labels)
     img.save(jpeg, 'JPEG')
+
+def kmeans_cluster(dataset, distance = pearson_score, k = 4):
+    col_len = len(dataset[0])
+    ranges = [(min([row[i] for row in dataset]), max([row[i] for row in dataset])) \
+            for i in range(col_len)]
+
+    k_centers = [[random.random() * (ranges[i][1] - ranges[i][0]) + ranges[i][0] \
+            for i in range(col_len)] for j in range(k)]
+    return 0
