@@ -8,6 +8,7 @@
 #########################################################################
 
 from pydelicious import get_popular, get_userposts, get_urlposts
+import time
 
 def initializeUserDict(tag, count = 5):
     usr_dict = {}
