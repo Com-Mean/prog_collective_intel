@@ -141,4 +141,86 @@ def kmeans_cluster(dataset, distance = pearson_score, k = 4):
 
     k_centers = [[random.random() * (ranges[i][1] - ranges[i][0]) + ranges[i][0] \
             for i in range(col_len)] for j in range(k)]
-    return 0
+
+    last_matches = None
+    for t in range(100): #TODO 100 times maybe not enough to convergence
+        print('Iteration %d' % t)
+        best_matches = [[] for i in range(k)]
+
+        for j  in range(k):
+            row = dataset[j]
+            best_match = 0
+            for i in range(k):
+                dis = distance(k_centers[i], row)
+                if dis < distance(dataset[best_match], row): best_match = i
+            best_matches[best_match].append(j)
+
+        #if the clusters result not change anymore, cluster is done
+        if best_matches == last_matches: break
+        last_matches=best_matches
+
+    for i in range(k):
+        avgs = [0.0] * col_len
+        if len(best_matches[i]) > 0:
+            for rowid in best_matches[i]:
+                for m in range(col_len):
+                    avgs[m] += dataset[rowid][m]
+            for j in range(col_len):
+                avgs[j] /= len(best_matches[i])
+            dataset[i] = avgs
+    return best_matches
+
+def tanimoto_score(v1, v2):
+    c1, c2, shr = 0, 0, 0
+    for i in range(len(v1)):
+        if v1[i] is not 0: c1 += 1
+        if v2[i] is not 0: c2 += 1
+        if v1[i] and v2[i] is not 0: shr += 1
+    return 1.0 - (float(shr)/(c1 + c2 - shr))
+
+def scaledown(data, distance = pearson_score, rate = 0.1):
+    n = len(data)
+
+    real_dis = [[distance(data[i], data[j]) for j in range(n)]
+            for i in range(n)]
+
+    outersum = 0.0
+    loc = [[random.random(), random.random()] for i in range(n)]
+    fake_dist = [[0.0 for j in range(n)] for i in range(n)]
+
+    lasterror = None
+    for m in range(1000):
+        for i in range(n):
+            for j in range(n):
+                fake_dist[i][j] = math.sqrt(sum([pow(loc[i][x] - loc[j][x], 2)
+                    for x in range(len(loc[i]))]))
+        grad = [[0.0, 0.0] for i in range(n)]
+        total_error = 0
+        for k in range(n):
+            for j in range(n):
+                if j is k: continue
+                err_term = (fake_dist[j][k] - real_dis[j][k])/real_dis[j][k]
+
+                grad[k][0] += ((loc[k][0] - loc[j][0]) / fake_dist[j][k]) * err_term
+                grad[k][1] += ((loc[k][1] - loc[j][1]) / fake_dist[j][k]) * err_term
+                total_error += abs(err_term)
+            print(total_error)
+
+            if lasterror and lasterror < total_error: break
+            lasterror = total_error
+
+            for k in range(n):
+                loc[k][0] -= rate * grad[k][0]
+                loc[k][1] -= rate * grad[k][1]
+
+        return loc
+
+def draw2d(data, labels, jpeg='mds2d.jpg'):
+    img = Image.new('RGB', (2000, 2000),(255, 255, 255))
+    draw = ImageDraw.Draw(img)
+    for i in range(len(data)):
+        x = (data[i][0] + 0.5) * 1000
+        y = (data[i][1] + 0.5) * 1000
+        draw.text((x,y), labels[i], (0,0,0))
+        img.save(jpeg, 'JPEG')
+
