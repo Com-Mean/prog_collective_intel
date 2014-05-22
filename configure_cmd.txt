@@ -63,7 +63,7 @@ find .  -maxdepth 1 -type f ! -iname "*.py*" -delete
 rename 's/\.txt/\.ext/' *
 
 github and bitbucket
-com_mean out_1018@outlook.com Cool_1018
+com_mean out_1018@outlook.com 1018_Cool
 
 ∫£µ¡ÕÂ
 http://194.71.107.80/
