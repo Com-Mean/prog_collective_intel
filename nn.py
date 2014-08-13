@@ -76,3 +76,59 @@ class SearchNet:
             for urlid in urls:
                 self.setStrength(hiddenid, urlid, LAYER["HIDDEN_TO_URL"], 0.1)
 
+    def getMatchedHiddenIds(self, wordids, urlids):
+        ret = {}
+        for wordid in wordids:
+            word_toids = self.con.execute(
+                    'select toid from wordhidden where fromid=%d' % wordid)
+            for row in word_toids:
+                ret[row[0]] = 1
+        for urlid in urlids:
+            url_fromids = self.con.execute(
+                    'select fromid from hiddenurl where toid=%d' % urlid)
+            for row in url_fromids:
+                ret[row[0]] = 1
+        return ret.keys()
+
+    def setupNetwork(self, wordids, urlids):
+        # value list
+        self.wordids = wordids
+        self.hiddenids = self.getMatchedHiddenIds(wordids, urlids)
+        self.urlids = urlids
+
+        #node output
+        self.ai = [1.0] * len(self.wordids)
+        self.ah = [1.0] * len(self.hiddenids)
+        self.ao = [1.0] * len(self.urlids)
+
+        #build the strength matrix
+        self.wi = [[self.getStrength(wordid, hiddenid, 0)
+                    for hiddenid in self.hiddenids]
+                    for wordid in self.wordids]
+        self.wo = [[self.getStrength(hiddenid, urlid, 1)
+                    for urlid in self.urlids]
+                    for hiddenid in self.hiddenids]
+
+    def feedForward(self):
+        # the wordids is the only input
+        for i in range(len(self.wordids)):
+            self.ai[i] = 1.0
+
+        # hidden_layer's active level
+        for j in range(len(self.hiddenids)):
+            sum = 0.0
+            for i in range(len(self.wordids)):
+                sum = sum + self.ai[i] * self.wi[i][j]
+            self.ah[j] = tanh(sum)
+
+        # output_layer's active level
+        for k in range(len(self.urlids)):
+            sum = 0.0
+            for j in range(len(self.hiddenids)):
+                sum = sum + self.ah[j] * self.wo[j][k]
+            self.ao[k] = tanh(sum)
+        return self.ao[:]
+
+    def getResult(self, wordids, urlids):
+        self.setupNetwork(wordids, urlids)
+        return self.f(wordids, urlids)
