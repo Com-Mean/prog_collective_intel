@@ -56,7 +56,7 @@ class SearchNet:
             rowid = cur_strength[0]
             self.con.execute('update %s set strength=%f where rowid=%d' % (table, strength, rowid))
 
-    def generatorHiddenNode(self, wordids, urls):
+    def generateHiddenNode(self, wordids, urls):
         if len(wordids) > 3:
             return None
 
@@ -70,9 +70,10 @@ class SearchNet:
             new_row = self.con.execute(
                     "insert into hiddennode (create_key) values ('%s')" %createkey)
             hiddenid = new_row.lastrowid
+            print("hiddenid %d" % hiddenid)
             # set strength
             for wordid in wordids:
-                self.setStrength(wordid, hiddenid, LAYER["WORD_TO_HIDDEN"], 1.0/len(wordid))
+                self.setStrength(wordid, hiddenid, LAYER["WORD_TO_HIDDEN"], 1.0/len(wordids))
             for urlid in urls:
                 self.setStrength(hiddenid, urlid, LAYER["HIDDEN_TO_URL"], 0.1)
 
