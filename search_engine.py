@@ -10,6 +10,8 @@ import urllib2
 from BeautifulSoup import *
 from urlparse import urljoin
 import sqlite3 as sqlite
+import nn
+mynet = nn.SearchNet("nn.db")
 
 PAGERANK_INIT_VALUE = 0.15
 PAGERANK_DAMPING_RATIO = 0.85
@@ -192,6 +194,7 @@ class Searcher:
                 reverse = True)
         for (score, url_id) in ranked_scores[0:10]:
             print('%f\t%s'%(score, self.get_url_name(url_id)))
+    return word_ids, [rank_score[1] for rank_score in ranked_scores[0:10]]
 
 
     def get_match_rows(self, q):
@@ -291,3 +294,11 @@ class Searcher:
         maxScore = max(linkScores.values())
         normalizedScores = dict([(urlid, float(value)/maxScore) for (urlid, value) in linkScores.items()])
         return normalizedScores
+
+# add to weights list after MLP is training enough
+    def nnScore(self, rows, wordids):
+        # get the only URL ID list
+        urlids = [urlid for urlid in set([row[0] for row in rows])]
+        nnres = mynet.getResult(wordids, urlids)
+        scores = dict([(urlids[i], nnres[i]) for i in range(len(urlids))])
+        return self.normalize_scorses(scores)
