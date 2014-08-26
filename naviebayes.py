@@ -8,16 +8,19 @@
 #########################################################################
 # Using matrix will be more suitable
 
+M = 1          #m-estimate TODO
+
 import math
 
 class NaiveBayesClassifier:
-    def __init__(self, attrs, attr_vrange, train_set):
+    def __init__(self, attrs, attr_vrange, train_set, mEstimate_p=0):
         self.attrs = attrs                  #list 
         self.attr_vrange = attr_vrange
         self.category_vrange = self.attr_vrange[-1].value()
         self.train_set = train_set
         self.train_set_len = len(self.train_set)
         self.category_dataset = dict((cat, []) for cat in self.category_vrange)
+        self.user_def_p = mEstimate_p
 
     def dataCheck(self, data_set):
         for data in data_set:
@@ -26,12 +29,34 @@ class NaiveBayesClassifier:
 
         return True
 
+    def getContinuousAttrMiu(self, dataset, attr_index):
+        attr_vsum = 0.0
+        for data in dataset:
+            attr_vsum += data[attr_index]
+        return attr_vsum/len(dataset)
+
+    def getContinuousAttrMiuSigma(self, dataset, attr_index):
+        sigma = 0.0
+        u = self.getContinuousAttrMiu(dataset, attr_index)
+        for data in dataset:
+            sigma += math.pow((data[attr_index] - u), 2)
+
+        return (u, sigma)
+
+    # assume the Continuous attr obey the Gaussian Distribution
+    def ContinuousAttrGaussianDistributionProb(self, u, sigma, attr_v):
+        exponent = math.pow((attr_v - u), 2)/(2*math.pow(sigma, 2))
+        coefficient = math.pow(math.sqrt(2 * math.pi) * sigma, -1)
+
+        return coefficient * math.exp(exponent)
+
     def getAttrvFrequency(self, dataset, attr_index, attr_value):
         attr_value_num = 0
         for data in dataset:
             if data[attr_index] == attr_value:
                 attr_value_num += 1
-        return attr_value_num/len(dataset)
+        # m-Estimate(robust estimation) to avoid leak of sample
+        return (attr_value_num + M * self.user_def_p)/(len(dataset) + M) 
 
     def getCategoryTrainset(self, train_set, category):
         category_trainset = []
