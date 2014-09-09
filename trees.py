@@ -21,6 +21,7 @@ def createDataSet():
 
     return dataSet, labels
 
+#节点划分前的熵
 def calcShannonEnt(dataSet):
     numEntries = len(dataSet)
     labelCounts = {}
@@ -58,8 +59,9 @@ def chooseBestFeatureToSplit(dataSet):
         for value in uniqueVals:
             subDataSet = splitDataSet(dataSet, i, value)
             prob = len(subDataSet)/ float(len(dataSet))
-            newEntropy += prob * calcShannonEnt(subDataSet)
-        infoGain = baseEntropy - newEntropy
+            newEntropy += prob * calcShannonEnt(subDataSet)#划分后的熵
+        #calc信息增益,既然划分前的熵一样，应该可以节约这一步，找到最小的划分后的熵即为最佳的划分点
+        infoGain = baseEntropy - newEntropy 
         if infoGain > bestInfoGain:
             bestInfoGain = infoGain
             bestFeature = i
