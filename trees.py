@@ -51,7 +51,7 @@ def splitDataSet(dataSet, axis, value):
 def chooseBestFeatureToSplit(dataSet):
     numFeatures = len(dataSet[0]) - 1
     baseEntropy = calcShannonEnt(dataSet)
-    bestInfoGain = 0.0; bestFeature = -1
+    bestInfoGainRatio = 0.0; bestFeature = -1
     for i in range(numFeatures):
         featList = [example[i] for example in dataSet]
         uniqueVals = set(featList)
@@ -60,10 +60,17 @@ def chooseBestFeatureToSplit(dataSet):
             subDataSet = splitDataSet(dataSet, i, value)
             prob = len(subDataSet)/ float(len(dataSet))
             newEntropy += prob * calcShannonEnt(subDataSet)#划分后的熵
-        #calc信息增益,既然划分前的熵一样，应该可以节约这一步，找到最小的划分后的熵即为最佳的划分点
-        infoGain = baseEntropy - newEntropy 
-        if infoGain > bestInfoGain:
-            bestInfoGain = infoGain
+
+        if newEntropy == 0: 
+            bestFeature = i
+            break
+        else:
+            #calc信息增益,既然划分前的熵一样，应该可以节约这一步，找到最小的划分后的熵即为最佳的划分点
+            infoGain = baseEntropy - newEntropy 
+            # use info gain ratio to settle problem that tend to use the morevalued attribute
+            infoGainRatio = infoGain/newEntropy 
+            if infoGainRatio > bestInfoGainRatio:
+                bestInfoGainRatio = infoGainRatio
             bestFeature = i
     return bestFeature
 
